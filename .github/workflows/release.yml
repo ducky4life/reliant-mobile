@@ -1,0 +1,90 @@
+name: release
+
+on:
+  workflow_dispatch:
+
+permissions: write-all
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: libcord-tech/reliant
+
+      - name: mobileify
+        run: |
+          pwd
+          ls
+          echo "* { touch-action: manipulation; }" | cat - src/css/_main.scss > temp && mv temp src/css/_main.scss
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add . && git commit -am "mobile"
+          pwd
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type Check with TypeScript
+        run: npm run type-check
+
+      - name: Build CSS
+        run: npm run build:css
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Increment version and push tag
+        id: increment_version
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          new_version=$(npm version patch -m "Upgrade to %s by GitHub Actions")
+          echo "new_version=${new_version}" >> $GITHUB_ENV
+
+      - name: Update manifest version
+        run: |
+          new_version=$(jq -r '.version' package.json)
+          jq --arg new_version "$new_version" '.version = $new_version' build/manifest.json > build/manifest.tmp && mv build/manifest.tmp build/manifest.json
+          git add build/manifest.json
+          git commit -m "Update manifest.json version to ${new_version}"
+
+      - name: Extract version
+        id: extract_version
+        run: |
+          new_version=$(jq -r '.version' package.json)
+          echo "new_version=${new_version}" >> $GITHUB_ENV
+
+      - name: Create zip of build
+        run: zip -r reliant-release.zip build
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.new_version }}
+          release_name: ${{ env.new_version }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./reliant-release.zip
+          asset_name: reliant-release.zip
+          asset_content_type: application/zip
