@@ -4,7 +4,7 @@
 
 no double tap to zoom
 
-changes: added to [css file](https://github.com/ducky4life/reliant-mobile/blob/main/src/css/_main.scss)
+changes: added to [css file](https://github.com/libcord-tech/reliant/blob/main/src/css/_main.scss)
 ```css
   * {
       touch-action: manipulation;
