@@ -16,13 +16,10 @@ jobs:
 
       - name: mobileify
         run: |
-          pwd
-          ls
           echo "* { touch-action: manipulation; }" | cat - src/css/_main.scss > temp && mv temp src/css/_main.scss
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add . && git commit -am "mobile"
-          pwd
 
       - name: Use Node.js
         uses: actions/setup-node@v4
