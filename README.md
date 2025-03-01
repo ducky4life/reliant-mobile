@@ -10,3 +10,7 @@ changes: added to [css file](https://github.com/libcord-tech/reliant/blob/main/s
       touch-action: manipulation;
   }
 ```
+
+please note that the version will always be one "patch" version above the reliant version (in semver)
+
+i.e. if you want to find reliant version 3.0.0, you'd have to search for reliant-mobile version 3.0.1
