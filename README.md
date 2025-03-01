@@ -14,3 +14,5 @@ changes: added to [css file](https://github.com/libcord-tech/reliant/blob/main/s
 please note that the version will always be one "patch" version above the reliant version (in semver)
 
 i.e. if you want to find reliant version 3.0.0, you'd have to search for reliant-mobile version 3.0.1
+
+[reliant quick start](https://github.com/libcord-tech/reliant/blob/main/documentation/quick-start.md)
